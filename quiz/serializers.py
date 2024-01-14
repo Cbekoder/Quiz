@@ -13,8 +13,12 @@ class QuestionSerializer(serializers.ModelSerializer):
         model = Question
         fields = '__all__'
 
-class QuizSerializer(serializers.ModelSerializer):
+class QuizDetailSerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True)
+    class Meta:
+        model = Quiz
+        fields = '__all__'
+class QuizSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Quiz

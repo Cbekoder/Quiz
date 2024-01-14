@@ -1,4 +1,3 @@
-# quiz/views.py
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -6,12 +5,26 @@ from rest_framework import status
 from .models import Quiz, Question, Choice, UserQuiz, UserChoice
 from .serializers import (
     QuizSerializer, QuestionSerializer, ChoiceSerializer,
-    UserQuizSerializer, UserChoiceSerializer
+    UserQuizSerializer, UserChoiceSerializer, QuizDetailSerializer
 )
 
 class QuizListView(generics.ListAPIView):
     queryset = Quiz.objects.all()
     serializer_class = QuizSerializer
+
+class QuizRetrieveView(generics.RetrieveAPIView):
+    queryset = Quiz.objects.all()
+    serializer_class = QuizDetailSerializer
+    lookup_field = 'id'
+
+    def post(self, request, *args, **kwargs):
+        quiz = self.get_object()
+
+        serializer = UserChoiceSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user, quiz=quiz)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class QuestionListView(generics.ListAPIView):
     serializer_class = QuestionSerializer
@@ -32,4 +45,3 @@ class SubmitUserChoiceView(APIView):
             return Response({'message': 'User choice submitted successfully'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# Add other quiz-related views as needed
